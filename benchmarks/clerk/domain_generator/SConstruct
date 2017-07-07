@@ -1,0 +1,29 @@
+import os
+
+debug = ARGUMENTS.get('debug', 0)
+
+common_env = Environment()
+
+
+include_paths = ['/opt/local/include','../../../../ltl2pddl/include','/usr/local/include/spot' ]
+lib_paths = [ '/usr/local/lib', 'opt/local/lib' ]
+libs = ['spot', 'bdd']
+
+common_env.Append( CPPPATH = [ os.path.abspath(p) for p in include_paths ] )
+
+if int(debug) == 1 :
+	common_env.Append( CCFLAGS = ['-g','-Wall', '-DDEBUG', '-fpermissive' ] )
+else:
+	common_env.Append( CCFLAGS = ['-O3','-Wall', '-fpermissive' ,'-DNDEBUG'] )
+
+cxx_sources = Glob('*.cxx', '../src/*.cxx')
+c_sources = Glob('*.c')
+src_objs = [ common_env.Object(s) for s in cxx_sources ] + [ common_env.Object(s) for s in c_sources ] + SConscript( '../../../../ltl2pddl/src/SConscript', 'common_env' )
+
+
+
+common_env.Append( LIBS=libs)
+common_env.Append( LIBPATH=[ os.path.abspath(p) for p in lib_paths ] )
+#common_env.Append( LINKFLAGS = ['--static'] )
+
+common_env.Program( 'packages_generator', src_objs )

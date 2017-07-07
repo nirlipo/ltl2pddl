@@ -1,0 +1,37 @@
+import os
+
+debug = ARGUMENTS.get('debug', 0)
+alternative = ARGUMENTS.get('alternative', 0)
+
+common_env = Environment()
+
+
+include_paths = ['/opt/local/include','../../../../ltl2pddl/include','/usr/local/include/spot','/usr/local/include/' ]
+lib_paths = [ '/usr/local/lib', 'opt/local/lib' ]
+libs = ['spot', 'bdd']
+
+common_env.Append( CPPPATH = [ os.path.abspath(p) for p in include_paths ] )
+
+if int(debug) == 1 :
+	common_env.Append( CCFLAGS = ['-g','-Wall', '-DDEBUG', '-fpermissive' ] )
+else:
+	common_env.Append( CCFLAGS = ['-O3','-Wall', '-fpermissive' ,'-DNDEBUG'] )
+
+if int(alternative) == 1 :
+   	cxx_sources = Glob('lift_generator_alternative.cxx', '../src/*.cxx')
+else:
+	if int(alternative) == 2 :
+   		cxx_sources = Glob('lift_generator_orig.cxx', '../src/*.cxx')
+	else:
+   		cxx_sources = Glob('lift_generator.cxx', '../src/*.cxx')
+
+c_sources = Glob('*.c')
+src_objs = [ common_env.Object(s) for s in cxx_sources ] + [ common_env.Object(s) for s in c_sources ] + SConscript( '../../../../ltl2pddl/src/SConscript', 'common_env' )
+
+
+
+common_env.Append( LIBS=libs)
+common_env.Append( LIBPATH=[ os.path.abspath(p) for p in lib_paths ] )
+#common_env.Append( LINKFLAGS = ['--static'] )
+
+common_env.Program( 'lift_generator', src_objs )
