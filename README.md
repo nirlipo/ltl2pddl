@@ -28,7 +28,7 @@ More to come soon.
 
 ---------------------
 
-Dependencies: spot, boost and Scons
+Dependencies: spot (https://spot.lrde.epita.fr/), boost and Scons
 
 ---------------------
 
